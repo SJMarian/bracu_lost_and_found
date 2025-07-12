@@ -17,9 +17,12 @@ def login_page(request: Request, error: str = None, success: str = None):
 def registration_page(request: Request, error: str = None, success: str = None):
     return templates.TemplateResponse("registration_page.html", {"request": request, "error": error, "success": success})
 
+
 @router.post("/login")
-def handle_login(email: str = Form(...), password: str = Form(...)):
-    if get_user(email, password):
+def handle_login(request: Request, email: str = Form(...), password: str = Form(...)):
+    user = get_user(email, password)
+    if user:
+        request.session["user_id"] = user.id
         return RedirectResponse(url=HOME_PATH, status_code=303)
     else:
         return RedirectResponse(url=LOGIN_PATH+"?error=Invalid email or password", status_code=303)
