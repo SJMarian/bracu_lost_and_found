@@ -7,3 +7,4 @@ class User(SQLModel, table=True):
     name: str
     phone: str
     student_id: str
+    role: str

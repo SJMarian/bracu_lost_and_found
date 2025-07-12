@@ -22,7 +22,12 @@ def registration_page(request: Request, error: str = None, success: str = None):
 def handle_login(request: Request, email: str = Form(...), password: str = Form(...)):
     user = get_user(email, password)
     if user:
-        request.session["user_id"] = user.id
+        request.session["user"] = {
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "role" : user.role
+        }
         return RedirectResponse(url=HOME_PATH, status_code=303)
     else:
         return RedirectResponse(url=LOGIN_PATH+"?error=Invalid email or password", status_code=303)
@@ -32,7 +37,7 @@ def handle_registration(email: str = Form(...), password: str = Form(...), name:
     if get_user_by_email(email):
         return RedirectResponse(url=REGISTRATION_PATH+"?error=User already exists", status_code=303)
     else:
-        user = User(email=email, password=password, name=name, phone=phone, student_id=student_id)
+        user = User(email=email, password=password, name=name, phone=phone, student_id=student_id, role="STUDENT")
         with Session(engine) as session:
             session.add(user)
             session.commit()

@@ -9,16 +9,15 @@ import shutil
 import uuid
 from app.contants import HOME_PATH
 import os
+from app.di import get_current_user
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/views")
 
-def get_current_user_id(request: Request):
-    return request.session.get("user_id")
 
 @router.get(HOME_PATH, response_class=HTMLResponse)
-def home_page(request: Request):
-    user_id = get_current_user_id(request=request)
+def home_page(request: Request, user: dict = Depends(get_current_user)):
+    user_id = user['id']
     with Session(engine) as session:
         my_items = session.exec(
             select(Item).where(Item.post_by == user_id, Item.handover_status == "PENDING")
@@ -40,8 +39,9 @@ def submit_item(
     itemDescription: str = Form(...),
     contactNumber: str = Form(...),
     image: UploadFile = File(...),
+    user: dict = Depends(get_current_user)
 ):
-    user_id = get_current_user_id()
+    user_id = user['id']
     upload_dir = "/static/Images"
     os.makedirs(upload_dir, exist_ok=True) 
 
@@ -55,7 +55,7 @@ def submit_item(
         new_item = Item(
             name=itemName,
             description=itemDescription,
-            contact_number=contactNumber,
+            contact=contactNumber,
             image_path=filename,
             post_by=user_id,
             handover_status="PENDING"

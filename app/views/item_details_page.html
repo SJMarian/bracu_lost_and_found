@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLF Item Details</title>
+    <link rel="stylesheet" href="/static/myStyle.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+
+<body>
+
+    <nav class="navbar" style="background-color: #275cab;">
+        <div class="container-fluid d-flex justify-content-start">
+            <a href="javascript:history.back()" class="btn btn-outline-light me-2">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+            <a class="navbar-brand text-white fw-bold fs-3">Item Details</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        {% if item %}
+        <img src="/static/Images/{{ item.image_path }}" style="width: 40rem; height:30rem; object-fit: cover;"
+            class="card-img-top" alt="Item Image">
+        <br><br>
+
+        <h4 class="card-title">{{ item.name }}</h4>
+        <p class="card-text">{{ item.description | replace('\n', '<br>') | safe }}</p>
+
+        <div class="d-flex justify-content-start">
+            {% if item.post_by == user.id or user.role == 'ADMIN' %}
+            <form method="post" action="/item/delete/{{ item.id }}" style="display: inline;">
+                <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete Post</button>
+            </form>
+            {% else %}
+            {% if is_claimed %}
+            <form method="post" action="/item/unclaim/{{ item.id }}" style="display: inline;">
+                <button type="submit" class="btn btn-warning me-2"><i class="fa-solid fa-circle-xmark"></i> Unclaim
+                    Item</button>
+            </form>
+            {% else %}
+            <form method="post" action="/item/claim/{{ item.id }}" style="display: inline;">
+                <button type="submit" class="btn btn-primary me-2"><i class="fa-solid fa-circle-check"></i> Claim
+                    Item</button>
+            </form>
+            {% endif %}
+            {% endif %}
+        </div>
+
+        <br>
+        <hr>
+
+        <div class="section-title">
+            <h4>Claims By</h4>
+        </div>
+        <ul class="list-group mb-4">
+            {% if claims %}
+            {% for claim in claims %}
+            <li class="list-group-item d-flex justify-content-between">
+                <div><strong>Name:</strong> {{ claim.name }}</div>
+                <div><strong>Phone:</strong> {{ claim.phone }}</div>
+                <div><strong>Claimed On:</strong> {{ claim.claim_date }}</div>
+                {% if item.post_by == user.id or user.role == 'ADMIN' %}
+                <div>
+                    <form method="post" action="/item/handover/{{ item.id }}">
+                        <input type="hidden" name="handover_to" value="{{ claim.id }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-hand-holding-hand"></i> Handover
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </li>
+            {% endfor %}
+            {% else %}
+            <li class="list-group-item">No claims yet.</li>
+            {% endif %}
+        </ul>
+        {% else %}
+        <p>Item not found.</p>
+        {% endif %}
+    </div>
+
+</body>
+
+</html>
