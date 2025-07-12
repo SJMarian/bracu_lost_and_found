@@ -44,6 +44,11 @@ def handle_registration(email: str = Form(...), password: str = Form(...), name:
         return RedirectResponse(url=LOGIN_PATH+"?success=Registration successful", status_code=303)
 
 
+@router.post("/logout")
+def logout(request: Request):
+    request.session.pop("user", None)
+    return RedirectResponse(url=LOGIN_PATH, status_code=303)
+
 # Find a user
 def get_user(email: str, password: str) -> User | None:
     with Session(engine) as session:
