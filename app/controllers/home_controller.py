@@ -14,6 +14,9 @@ from app.di import get_current_user
 router = APIRouter()
 templates = Jinja2Templates(directory="app/views")
 
+upload_folder = "uploads"
+os.makedirs(upload_folder, exist_ok=True)
+
 
 @router.get(HOME_PATH, response_class=HTMLResponse)
 def home_page(request: Request, user: dict = Depends(get_current_user)):
@@ -34,7 +37,7 @@ def home_page(request: Request, user: dict = Depends(get_current_user)):
     })
 
 @router.post("/submit-item")
-def submit_item(
+async def submit_item(
     itemName: str = Form(...),
     itemDescription: str = Form(...),
     contactNumber: str = Form(...),
@@ -42,14 +45,13 @@ def submit_item(
     user: dict = Depends(get_current_user)
 ):
     user_id = user['id']
-    upload_dir = "/static/Images"
-    os.makedirs(upload_dir, exist_ok=True) 
+   
 
     filename = f"{uuid.uuid4().hex}_{image.filename}"
-    file_path = os.path.join(upload_dir, filename)
+    file_path = os.path.join(upload_folder, filename)
 
     with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(image.file, buffer)
+        buffer.write(await image.read())
 
     with Session(engine) as session:
         new_item = Item(

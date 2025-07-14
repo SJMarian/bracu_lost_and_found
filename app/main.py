@@ -13,7 +13,7 @@ init_db()
 
 # Mount static directory (for CSS/JS/images if any)
 app.mount("/assets", StaticFiles(directory="app/assets"), name="assets")
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Register controller (routes)
 app.include_router(auth_controller.router)
