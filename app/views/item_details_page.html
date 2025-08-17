@@ -21,9 +21,49 @@
         </div>
     </nav>
 
+    <!-- Modal -->
+    <div class="modal fade" id="lostItemEditModal" tabindex="-1" aria-labelledby="lostItemModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="lostItemModalLabel">Edit Lost Item Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label">Item Name</label>
+                            <input type="text" name="itemName" required class="form-control" id="itemName"
+                                placeholder="Enter the item's name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="itemDescription" class="form-label">Description</label>
+                            <textarea class="form-control" name="itemDescription" id="itemDescription" rows="3"
+                                placeholder="Enter a description"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contactNumber" class="form-label">Contact Number</label>
+                            <input type="text" class="form-control" required id="contactNumber" name="contactNumber"
+                                placeholder="Enter your contact number">
+                        </div>
+                        <!-- <div class="mb-3">
+                            <label for="itemImage" class="form-label">Upload Image</label>
+                            <input class="form-control" name="image" required type="file" id="itemImage">
+                        </div> -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="action" class="btn btn-primary">Done</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container mt-5">
         {% if item %}
-        <img src="/static/Images/{{ item.image_path }}" style="width: 40rem; height:30rem; object-fit: cover;"
+        <img src="/uploads/{{ item.image_path }}" style="width: 40rem; height:30rem; object-fit: cover;"
             class="card-img-top" alt="Item Image">
         <br><br>
 
@@ -32,7 +72,14 @@
 
         <div class="d-flex justify-content-start">
             {% if item.post_by == user.id or user.role == 'ADMIN' %}
-            <form method="post" action="/item/delete/{{ item.id }}" style="display: inline;">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#lostItemEditModal"
+                data-id="{{ item.id }}" data-name="{{ item.name }}" data-description="{{ item.description }}"
+                data-contact="{{ item.contact }}">
+                <i class="fa-solid fa-edit"></i> Edit Post
+            </button>
+            <div class="p-2"></div>
+
+            <form method="post" acion="/item/delete/{{ item.id }}" style="display: inline;">
                 <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete Post</button>
             </form>
             {% else %}
@@ -83,6 +130,36 @@
         <p>Item not found.</p>
         {% endif %}
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var editModal = document.getElementById('lostItemEditModal');
+
+            editModal.addEventListener('show.bs.modal', function (event) {
+                // Button that triggered the modal
+                var button = event.relatedTarget;
+
+                // Extract info from data-* attributes
+                var itemId = button.getAttribute('data-id');
+                var itemName = button.getAttribute('data-name');
+                var itemDescription = button.getAttribute('data-description');
+                var contactNumber = button.getAttribute('data-contact');
+
+                // Update the form action if needed
+                var form = editModal.querySelector('form');
+                form.action = "/item/update/" + itemId;
+
+                // Update modal fields
+                editModal.querySelector('#itemName').value = itemName;
+                editModal.querySelector('#itemDescription').value = itemDescription;
+                editModal.querySelector('#contactNumber').value = contactNumber;
+
+                // ⚠️ File inputs can’t be pre-filled for security reasons
+            });
+        });
+    </script>
+
 
 </body>
 

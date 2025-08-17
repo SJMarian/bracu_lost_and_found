@@ -121,3 +121,31 @@ def handover_item(
             session.commit()
 
     return RedirectResponse(url=HOME_PATH, status_code=303)
+
+
+@router.post("/item/update/{item_id}")
+async def update_item(
+    item_id: int,
+    itemName: str = Form(...),
+    itemDescription: str = Form(...),
+    contactNumber: str = Form(...),
+    user: dict = Depends(get_current_user)
+):
+    user_id = user["id"]
+
+    with Session(engine) as session:
+        item = session.get(Item, item_id)
+
+        if not item:
+            return {"error": "Item not found"}
+        if item.post_by != user_id and user["role"] != "ADMIN":
+            return {"error": "Not authorized to edit this item"}
+
+        item.name = itemName
+        item.description = itemDescription
+        item.contact = contactNumber
+
+        session.add(item)
+        session.commit()
+
+    return RedirectResponse(HOME_PATH, status_code=303)
