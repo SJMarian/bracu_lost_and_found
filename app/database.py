@@ -8,6 +8,7 @@ def init_db():
     from app.models.item_model import Item
     from app.models.item_claim_model import ItemClaim
     from app.models.handover_items_model import HandoverItems
+    from app.models.comment_model import Comment
 
     SQLModel.metadata.create_all(engine)
 

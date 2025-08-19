@@ -6,17 +6,41 @@ from app.models.item_model import Item
 from app.models.item_claim_model import ItemClaim
 from app.models.handover_items_model import HandoverItems
 from app.models.user_model import User
+from app.models.comment_model import Comment
 from app.database import engine
 from datetime import datetime
 from app.contants import HOME_PATH, ITEM_DETAILS_PATH
+from app.di import get_current_user
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/views")
 
+# helper method to get time delta
+def time_ago(dt: datetime) -> str:
+    now = datetime.utcnow()
+    diff = now - dt
 
-# Dummy session-based user getter
-def get_current_user(request: Request):
-    return request.session.get("user")
+    seconds = diff.total_seconds()
+    minutes = seconds // 60
+    hours = minutes // 60
+    days = hours // 24
+    months = days // 30
+    years = days // 365
+
+    if seconds < 60:
+        return f"{int(seconds)} sec ago"
+    elif minutes < 60:
+        return f"{int(minutes)} min ago"
+    elif hours < 24:
+        return f"{int(hours)} hr ago"
+    elif days < 30:
+        return f"{int(days)} day ago"
+    elif months < 12:
+        return f"{int(months)} month ago"
+    else:
+        return f"{int(years)} year ago"
+
+
 
 
 @router.get("/item/{item_id}", response_class=HTMLResponse)
@@ -34,19 +58,43 @@ def item_details(item_id: int, request: Request, user: dict = Depends(get_curren
             )
         ).first() is not None
 
-
+        # Get all claims
         claims = session.exec(
             select(User.id, User.name, User.phone, ItemClaim.claim_date)
             .join(ItemClaim, ItemClaim.claim_by == User.id)
             .where(ItemClaim.item_id == item_id)
         ).all()
 
+         # Get all comments with user info
+        comments = session.exec(
+            select(Comment, User)
+            .join(User, User.id == Comment.user_id)
+            .where(Comment.item_id == item_id)
+            .order_by(Comment.created_at.desc())
+        ).all()
+
+        # Format comments for easy use in template
+        comments_data = [
+            {
+                "id": c.id,
+                "text": c.text,
+                "created_at": c.created_at,
+                "user_id": u.id,
+                "user_name": u.name,
+                "time_pass": time_ago(c.created_at),
+                "user_avatar": f"https://api.dicebear.com/9.x/fun-emoji/svg?seed={u.id}"
+            }
+            for c, u in comments
+        ]
+
+
         return templates.TemplateResponse("item_details_page.html", {
             "request": request,
             "item": item,
             "user": user,
             "is_claimed": is_claimed,
-            "claims": claims
+            "claims": claims,
+            "comments": comments_data
         })
 
 
