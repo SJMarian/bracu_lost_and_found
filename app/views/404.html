@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Inter", Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f9fafb;
+            color: #111827;
+        }
+
+        a {
+            text-decoration: none;
+            background: #2563eb;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        a:hover {
+            background: #1e40af;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="d-flex align-items-center min-vh-100 py-5">
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <!-- Lottie Animation Side -->
+                <div class="col-md-6 order-md-2">
+                    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+                    <lottie-player src="https://assets9.lottiefiles.com/packages/lf20_kcsr6fcp.json"
+                        background="transparent" speed="1" loop autoplay>
+                    </lottie-player>
+                </div>
+                <!-- Error Message Side -->
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="fw-light">
+                        The page you're looking for was moved, removed, or never existed.
+                    </p>
+                    <a class="btn btn-lg btn-secondary" href="/">Back to homepage</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</body>
+
+</html>
