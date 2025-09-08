@@ -52,7 +52,7 @@ def logout(request: Request):
 # Find a user
 def get_user(email: str, password: str) -> User | None:
     with Session(engine) as session:
-        statement = select(User).where(User.email == email and User.password == password)
+        statement = select(User).where((User.email == email), (User.password == password))
         result = session.exec(statement).first()
         return result
 
